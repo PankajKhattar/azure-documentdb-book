@@ -5,6 +5,7 @@ services:
     ports:
       - "10260:10260"
     command:
+      - "documentdb"
       - "--username=bookuser"
       - "--password=bookpassword"
     volumes:
