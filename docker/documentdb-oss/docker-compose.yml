@@ -1,13 +1,11 @@
 services:
   documentdb:
-    image: ghcr.io/microsoft/documentdb/documentdb-oss:0.1.0
-    container_name: documentdb-oss
+    image: ghcr.io/documentdb/documentdb/documentdb-local:latest
+    container_name: documentdb-local
     ports:
       - "27017:27017"
-    environment:
-      POSTGRES_PASSWORD: postgres
     volumes:
-      - documentdb_data:/var/lib/postgresql/data
+      - documentdb_data:/var/lib/documentdb/data
 
 volumes:
   documentdb_data:
