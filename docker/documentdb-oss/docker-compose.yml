@@ -8,6 +8,7 @@ services:
       - "documentdb"
       - "--username=bookuser"
       - "--password=bookpassword"
+      - "--bind-ip=0.0.0.0"
     volumes:
       - documentdb_data:/var/lib/documentdb/data
 
