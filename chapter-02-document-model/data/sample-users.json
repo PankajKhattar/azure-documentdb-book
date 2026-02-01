@@ -1,0 +1,9 @@
+{
+  "userId": "u124",
+  "name": "Bob",
+  "preferences": {
+    "language": "fr",
+    "notifications": false
+  },
+  "createdAt": "2025-01-01T10:00:00Z"
+}
