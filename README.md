@@ -16,6 +16,17 @@ Each folder maps directly to a chapter in the book and contains practical, hands
 - Node.js 18+ or Python 3.9+
 - Basic familiarity with MongoDB-style APIs
 
+## Operating System Compatibility
+
+This repository is **operating system–agnostic**.
+
+All examples have been tested on:
+- Linux
+- macOS
+- Windows (via Docker Desktop)
+
+Because DocumentDB OSS is run using Docker, the underlying host OS does not affect the behavior of the examples.
+
 ## Getting Started
 
 Start with Chapter 2 by setting up DocumentDB OSS locally:
