@@ -1,6 +1,6 @@
 services:
   documentdb:
-    image: ghcr.io/microsoft/documentdb/documentdb:latest
+    image: ghcr.io/microsoft/documentdb/documentdb-oss:0.1.0
     container_name: documentdb-oss
     ports:
       - "27017:27017"
