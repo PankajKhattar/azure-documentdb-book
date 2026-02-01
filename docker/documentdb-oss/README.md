@@ -7,6 +7,7 @@ This folder contains a Docker Compose configuration to run DocumentDB OSS locall
 ```bash
 docker compose up -d
 docker ps
+```
 
 DocumentDB should be listening on:
 mongodb://localhost:27017
