@@ -3,12 +3,11 @@ services:
     image: ghcr.io/documentdb/documentdb/documentdb-local:latest
     container_name: documentdb-local
     ports:
-      - "10260:10260"
+      - "27017:27017"
     command:
       - "documentdb"
       - "--username=bookuser"
       - "--password=bookpassword"
-      - "--bind-ip=0.0.0.0"
     volumes:
       - documentdb_data:/var/lib/documentdb/data
 
