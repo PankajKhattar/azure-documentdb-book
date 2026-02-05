@@ -5,9 +5,10 @@ services:
     ports:
       - "10260:10260"
     command:
-      - "documentdb"
-      - "--username=bookuser"
-      - "--password=bookpassword"
+      - "--username"
+      - "bookuser"
+      - "--password"
+      - "bookpassword"
     volumes:
       - documentdb_data:/var/lib/documentdb/data
 

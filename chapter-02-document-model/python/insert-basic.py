@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from datetime import datetime
 
-client = MongoClient("mongodb://localhost:27017")
+client = MongoClient("mongodb://bookuser:bookpassword@localhost:10260/?authSource=admin&tls=true&tlsAllowInvalidCertificates=true")
 
 db = client.bookdb
 users = db.users
