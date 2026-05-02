@@ -1,4 +1,4 @@
-# Chapter 6: Provisioning and Managing MongoDB vCore Clusters (Azure)
+# Chapter 6: rovisioning and Managing Azure DocumentDB Clusters
 
 This repository provides **production-grade examples** for provisioning and managing **MongoDB vCore clusters** on Azure. It focuses on **cluster-based (vCore) architecture**, not RU-based deployments.
 
