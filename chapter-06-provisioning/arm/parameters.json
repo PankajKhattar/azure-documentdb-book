@@ -1,0 +1,17 @@
+{
+  "clusterName": {
+    "value": "my-vcore-cluster"
+  },
+  "location": {
+    "value": "centralindia"
+  },
+  "administratorLogin": {
+    "value": "clusteradmin"
+  },
+  "administratorLoginPassword": {
+    "value": "StrongPassword123!"
+  },
+  "nodeCount": {
+    "value": 3
+  }
+}

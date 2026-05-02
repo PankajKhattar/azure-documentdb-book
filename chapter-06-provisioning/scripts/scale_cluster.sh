@@ -2,19 +2,21 @@
 
 CLUSTER_NAME=$1
 RESOURCE_GROUP=$2
-THROUGHPUT=$3
+NODE_COUNT=$3
 
-if [ -z "$THROUGHPUT" ]; then
-  echo "Usage: scale_cluster.sh <cluster> <rg> <throughput>"
+if [ -z "$NODE_COUNT" ]; then
+  echo "Usage: scale_cluster.sh <cluster> <rg> <node-count>"
   exit 1
 fi
 
-echo "Scaling cluster to $THROUGHPUT RU/s..."
+echo "Scaling cluster via ARM redeployment..."
 
-az cosmosdb mongodb database throughput update \
-  --account-name $CLUSTER_NAME \
+az deployment group create \
   --resource-group $RESOURCE_GROUP \
-  --name mydb \
-  --throughput $THROUGHPUT
+  --template-file ../arm/mongo-vcore.json \
+  --parameters clusterName=$CLUSTER_NAME \
+               nodeCount=$NODE_COUNT \
+               administratorLogin=clusteradmin \
+               administratorLoginPassword='StrongPassword123!'
 
-echo "Scaling completed."
+echo "Scaling complete."

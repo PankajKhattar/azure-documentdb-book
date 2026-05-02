@@ -1,6 +1,6 @@
-# Chapter 6: Provisioning and Managing Azure DocumentDB Clusters
+# Chapter 6: Provisioning and Managing MongoDB vCore Clusters (Azure)
 
-This repository contains production-grade examples demonstrating how to provision, manage, and interact with Azure DocumentDB (MongoDB API) clusters. The focus is on real-world practices including automation, resilience, and infrastructure-as-code.
+This repository provides **production-grade examples** for provisioning and managing **MongoDB vCore clusters** on Azure. It focuses on **cluster-based (vCore) architecture**, not RU-based deployments.
 
 ---
 
@@ -10,200 +10,219 @@ This repository contains production-grade examples demonstrating how to provisio
 chapter-06-provisioning/
 │
 ├── scripts/
-│   ├── provision_cluster.sh     # Create cluster (idempotent)
+│   ├── provision_cluster.sh     # (Optional/preview CLI)
 │   ├── delete_cluster.sh        # Cleanup resources
-│   ├── scale_cluster.sh         # Adjust throughput
+│   ├── scale_cluster.sh         # Scale node count
+│
+├── arm/
+│   ├── mongo-vcore.json         # ARM template for cluster provisioning
 │
 ├── python/
 │   ├── retry_example.py         # Retry with exponential backoff
 │   ├── connection_manager.py    # Connection pooling & health checks
-│
-├── terraform/
-│   ├── main.tf                  # Cosmos DB provisioning
-│   ├── variables.tf             # Configurable inputs
 │
 └── README.md
 ```
 
 ---
 
-## 1. Provisioning a Cluster (Azure CLI)
+## 1. Provisioning MongoDB vCore Cluster (ARM Template)
 
-### Prerequisites
+### Why ARM?
 
-* Azure CLI installed
-* Logged in using:
-
-  ```
-  az login
-  ```
-
-### Run Script
-
-```
-chmod +x scripts/provision_cluster.sh
-
-./scripts/provision_cluster.sh <cluster-name> <resource-group> <location>
-```
-
-### Example
-
-```
-./scripts/provision_cluster.sh my-docdb my-rg centralindia
-```
-
-### Key Features
-
-* Idempotent (won’t recreate existing cluster)
-* Parameterized inputs
-* Error-safe execution
+MongoDB vCore cluster provisioning is **not fully available in standard Azure CLI**.
+The most reliable method is using **ARM templates**.
 
 ---
 
-## 2. Scaling Throughput
+### ARM Template
 
-```
-chmod +x scripts/scale_cluster.sh
+**File:** `arm/mongo-vcore.json`
 
-./scripts/scale_cluster.sh <cluster-name> <resource-group> <throughput>
-```
-
-### Example
-
-```
-./scripts/scale_cluster.sh my-docdb my-rg 1000
-```
-
----
-
-## 3. Deleting the Cluster
-
-```
-chmod +x scripts/delete_cluster.sh
-
-./scripts/delete_cluster.sh my-docdb my-rg
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "centralindia"
+    },
+    "administratorLogin": {
+      "type": "string"
+    },
+    "administratorLoginPassword": {
+      "type": "secureString"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.DocumentDB/mongoClusters",
+      "apiVersion": "2023-03-15-preview",
+      "name": "[parameters('clusterName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "administratorLogin": "[parameters('administratorLogin')]",
+        "administratorLoginPassword": "[parameters('administratorLoginPassword')]",
+        "nodeGroupSpecs": [
+          {
+            "kind": "Shard",
+            "nodeCount": 3
+          }
+        ]
+      }
+    }
+  ]
+}
 ```
 
 ---
 
-## 4. Resilient Application Layer (Python)
+### Deploy the Template
 
-### Install Dependencies
+```bash
+az deployment group create \
+  --resource-group my-rg \
+  --template-file arm/mongo-vcore.json \
+  --parameters clusterName=my-vcore-cluster \
+               administratorLogin=adminuser \
+               administratorLoginPassword=StrongPassword123!
+```
+
+---
+
+## 2. Scaling Cluster (Conceptual Script)
+
+```bash
+# scripts/scale_cluster.sh
+
+echo "Scaling MongoDB vCore cluster..."
+
+# NOTE: Scaling is typically done via ARM update or Portal
+# Placeholder for future CLI support
+
+echo "Update nodeGroupSpecs in ARM template and redeploy."
+```
+
+---
+
+## 3. Delete Cluster
+
+```bash
+az resource delete \
+  --resource-group my-rg \
+  --name my-vcore-cluster \
+  --resource-type "Microsoft.DocumentDB/mongoClusters"
+```
+
+---
+
+## 4. Application Resilience (Python)
+
+### Install
 
 ```
 pip install pymongo
 ```
 
+---
+
 ### Retry Example
 
-```
-python python/retry_example.py
-```
+```python
+from pymongo import MongoClient, errors
+import time
+import random
 
-### What It Demonstrates
+client = MongoClient("<connection-string>", serverSelectionTimeoutMS=5000)
 
-* Handling transient failures
-* Exponential backoff
-* Retry-safe operations
+def safe_query(max_retries=5):
+    for attempt in range(max_retries):
+        try:
+            return client.db.users.find_one()
+
+        except (errors.AutoReconnect, errors.NetworkTimeout):
+            wait = (2 ** attempt) + random.uniform(0, 1)
+            time.sleep(wait)
+
+    raise Exception("Failed after retries")
+```
 
 ---
 
-## 5. Connection Management
+## 5. Connection Manager
 
-```
-from connection_manager import MongoConnectionManager
+```python
+from pymongo import MongoClient
 
-manager = MongoConnectionManager("<connection-string>")
-db = manager.get_db("test")
+class MongoConnectionManager:
+    def __init__(self, uri):
+        self.client = MongoClient(
+            uri,
+            maxPoolSize=50,
+            minPoolSize=5
+        )
 
-if manager.health_check():
-    print("Connection is healthy")
-```
+    def get_db(self, db_name):
+        return self.client[db_name]
 
-### Features
-
-* Connection pooling
-* Health checks
-* Configurable timeouts
-
----
-
-## 6. Infrastructure as Code (Terraform)
-
-### Initialize
-
-```
-cd terraform
-terraform init
-```
-
-### Plan
-
-```
-terraform plan \
-  -var="cluster_name=my-docdb" \
-  -var="resource_group=my-rg"
-```
-
-### Apply
-
-```
-terraform apply \
-  -var="cluster_name=my-docdb" \
-  -var="resource_group=my-rg"
+    def health_check(self):
+        self.client.admin.command("ping")
+        return True
 ```
 
 ---
 
 ## Architecture Overview
 
-This chapter demonstrates a layered approach:
+MongoDB vCore clusters follow a **true cluster model**:
 
-1. **Provisioning Layer**
+* Primary + replica nodes
+* Sharding support
+* Dedicated compute (vCores)
+* No RU abstraction
 
-   * Azure CLI scripts
-   * Terraform (declarative)
+---
 
-2. **Operations Layer**
+## Important Notes
 
-   * Scaling scripts
-   * Resource lifecycle management
-
-3. **Application Layer**
-
-   * Retry logic
-   * Connection pooling
-   * Health monitoring
+* MongoDB vCore is exposed via **Microsoft.DocumentDB/mongoClusters**
+* CLI support is **limited / preview**
+* ARM / Portal are **recommended provisioning paths**
 
 ---
 
 ## Best Practices
 
-* Always use **retry with backoff** for distributed systems
-* Prefer **Infrastructure-as-Code (Terraform)** over manual provisioning
-* Monitor **throughput (RU/s)** and scale proactively
-* Use **connection pooling** to reduce latency
-* Design for **failure, not success**
-
----
-
-## Next Steps
-
-To extend this setup:
-
-* Integrate with Azure DevOps pipelines
-* Add automated failover testing
-* Implement observability (metrics + logging)
-* Introduce chaos testing for resilience validation
+* Use **ARM or Terraform** for repeatable deployments
+* Implement **retry with exponential backoff**
+* Monitor node utilization and scale proactively
+* Secure credentials using **Azure Key Vault**
+* Always design for **failover scenarios**
 
 ---
 
 ## Summary
 
-This repository bridges the gap between:
+This repository demonstrates:
 
-* Simple provisioning examples
-  and
-* Production-ready cluster management
+* Real-world provisioning using ARM
+* Cluster-based MongoDB architecture (vCore)
+* Resilient application patterns
+* Operational best practices
 
-It equips you with the tools and patterns needed to operate Azure DocumentDB clusters reliably at scale.
+---
+
+## Next Steps
+
+* Add Terraform support for mongoClusters
+* Integrate with Azure DevOps pipelines
+* Add failover and chaos testing
+* Benchmark performance vs RU-based systems
+
+---
+
+This chapter intentionally focuses on **cluster-based MongoDB (vCore)** to reflect modern, production-grade deployment patterns on Azure.
