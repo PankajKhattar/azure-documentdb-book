@@ -314,16 +314,6 @@ The scripts in this repository are educational examples designed to explain the 
 
 ---
 
-# Related Chapters
-
-This repository complements the following chapters in the book:
-
-- Chapter 6 – Provisioning and Managing Clusters
-- Chapter 8 – Query Engine, Indexing, and Performance
-- Chapter 11 – Building Production-Grade Applications
-
----
-
 # License
 
 These examples are provided for educational and demonstration purposes.

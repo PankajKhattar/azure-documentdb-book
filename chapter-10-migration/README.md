@@ -190,17 +190,6 @@ The examples in this repository are simplified educational examples intended to 
 
 ---
 
-# Related Chapters
-
-These examples complement:
-
-- Chapter 6 – Provisioning and Managing Clusters
-- Chapter 8 – Query Engine and Indexing
-- Chapter 9 – Change Streams
-- Chapter 11 – Production-Grade Applications
-
----
-
 # License
 
 These examples are provided for educational and demonstration purposes.

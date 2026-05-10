@@ -178,15 +178,6 @@ Production systems should additionally implement:
 - dead-letter queues
 - consumer scaling
 
----
-
-# Related Chapters
-
-These examples complement:
-
-- Chapter 7 – Monitoring and Observability
-- Chapter 8 – Query Engine and Indexing
-- Chapter 11 – Production-Grade Applications
 
 ---
 
