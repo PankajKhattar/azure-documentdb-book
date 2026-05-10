@@ -1,4 +1,3 @@
-````markdown
 # Chapter 9 – Change Streams and Event-Driven Architectures
 
 This repository contains the practical examples used in:
