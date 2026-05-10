@@ -204,16 +204,6 @@ You can extend these examples by:
 - integrating Prometheus metrics
 - simulating failovers
 
----
-
-# Related Chapters
-
-These examples complement:
-
-- Chapter 7 – Monitoring and Observability
-- Chapter 8 – Query Engine and Performance
-- Chapter 9 – Change Streams
-- Chapter 10 – Migration
 
 ---
 
